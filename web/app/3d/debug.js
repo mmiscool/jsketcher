@@ -1,8 +1,25 @@
 import {checkForSelectedFaces} from './actions/action-helpers'
+import {LoadTemplate} from './ui/utils'
+import {BindObject} from './ui/bind.js'
 
 export const DEBUG = false;
 
 export function AddDebugSupport(app) {
+
+  //
+  //$('body').append($('<div>', {css: {
+  //  position: 'absolute',
+  //  width: '500px',
+  //  height: '500px',
+  //  background: '#777',
+  //  color: '0f0',
+  //  'font-size': '9px',
+  //  'z-index': 99999
+  //}}).append(dom) );
+
+
+
+
   if (!DEBUG) return;
   app.actionManager.registerActions(DebugActions);
   app.ui.registerMenuActions(DebugMenuConfig);

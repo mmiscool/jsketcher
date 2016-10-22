@@ -1,6 +1,6 @@
 import {jwerty} from 'jwerty'
 import {keymap} from './keymaps/default'
-import {Bind} from './bind'
+import {BindObject} from './bind'
 import {MessageSink} from './message-sink'
 import {LoadTemplate, DefaultMouseEvent, EventData, fit} from './utils'
 
@@ -89,7 +89,7 @@ InputManager.prototype.requestInfo = function(actionRequest) {
       const action = this.app.actionManager.actions[actionId];
       if (action) {
         const hotKey = this.keymap[actionId];
-        Bind(this.actionInfoDom, {
+        BindObject(this.actionInfoDom, {
           hint: action.state.hint,
           info: action.info,
           hotKey: hotKey
