@@ -71,6 +71,11 @@ InlineRadio.prototype.getValue = function() {
   return null;
 };
 
+InlineRadio.prototype.setValue = function(v) {
+  this.root.find('input[value='+v+']').prop('checked', true);
+};
+
+
 InlineRadio.COUNTER = 0;
 
 export function propLayout(root, name, valueEl) {
@@ -299,7 +304,11 @@ Bus.prototype.notify = function(event, data, sender) {
       const callback = listenerList[i][0];
       const listenerId = listenerList[i][1];
       if (sender == undefined || listenerId == null  || listenerId != sender) {
-        callback(data);
+        try {
+          callback(data);
+        } catch(e) {
+          console.error(e);
+        }
       }
     }
   }

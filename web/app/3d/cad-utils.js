@@ -5,7 +5,7 @@ import {Graph} from '../math/graph'
 import * as math from '../math/math'
 import {Matrix3, AXIS, ORIGIN} from '../math/l3space'
 import Counters from './counters'
-import {Solid} from './solid'
+import {MeshSceneSolid} from './scene/mesh-scene-object'
 import DPR from '../utils/dpr'
 
 export const FACE_COLOR =  0xB0C4DE;
@@ -143,8 +143,7 @@ export function createSolidMaterial() {
 }
 
 export function createSolid(csg, id) {
-  var material = createSolidMaterial();
-  return new Solid(csg, material, undefined, id);
+  return new MeshSceneSolid(csg, undefined, id);
 }
 
 export function intercept(obj, methodName, aspect) {
@@ -174,7 +173,7 @@ export function createPlane(basis, depth) {
   var currentBounds = new BBox();
   var points = boundingPolygon.map(function(p) { p.z = depth; return tr._apply(p); });
   var polygon = new CSG.Polygon(points.map(function(p){return new CSG.Vertex(csgVec(p))}), shared);
-  var plane = new Solid(CSG.fromPolygons([polygon]), material, 'PLANE');
+  var plane = new MeshSceneSolid(CSG.fromPolygons([polygon]), 'PLANE');
   plane.wireframeGroup.visible = false;
   plane.mergeable = false;
 
@@ -190,7 +189,7 @@ export function createPlane(basis, depth) {
   bb.checkBounds( 400,  400);
   setBounds(bb);
   
-  var sketchFace = plane.polyFaces[0];
+  var sketchFace = plane.sceneFaces[0];
   intercept(sketchFace, 'syncSketches', function(invocation, args) {
     var geom = args[0];
     invocation(geom);
@@ -225,96 +224,6 @@ export function fixCCW(path, normal) {
 }
 
 export const isPointInsidePolygon = math.isPointInsidePolygon;
-
-export function sketchToPolygons(geom) {
-
-  var dict = HashTable.forVector2d();
-  var edges = HashTable.forDoubleArray();
-
-  var lines = geom.connections;
-
-  function edgeKey(a, b) {
-    return [a.x, a.y, b.x, b.y];
-  }
-
-  var size = 0;
-  var points = [];
-  function memDir(a, b) {
-    var dirs = dict.get(a);
-    if (dirs === null) {
-      dirs = [];
-      dict.put(a, dirs);
-      points.push(a);
-    }
-    dirs.push(b);
-  }
-
-  for (var i = 0; i < lines.length; i++) {
-    var a = lines[i].a;
-    var b = lines[i].b;
-
-    memDir(a, b);
-    memDir(b, a);
-    edges.put(edgeKey(a, b), lines[i]);
-  }
-
-  var graph = {
-
-    connections : function(e) {
-      var dirs = dict.get(e);
-      return dirs === null ? [] : dirs;
-    },
-
-    at : function(index) {
-      return points[index];
-    },
-
-    size : function() {
-      return points.length;
-    }
-  };
-
-  var loops = Graph.findAllLoops(graph, dict.hashCodeF, dict.equalsF);
-  var polygons = [];
-  var li, loop, polyPoints;
-  for (li = 0; li < loops.length; ++li) {
-    loop = loops[li];
-    if (!isCCW(loop)) loop.reverse();
-    polyPoints = [];
-    for (var pi = 0; pi < loop.length; ++pi) {
-      var point = loop[pi];
-      var next = loop[(pi + 1) % loop.length];
-
-      var edge = edges.get(edgeKey(point, next));
-      if (edge === null) {
-        edge = edges.get(edgeKey(next, point));
-      }
-      polyPoints.push(point);
-      point.sketchConnectionObject = edge.sketchObject;
-    }
-    if (polyPoints.length >= 3) {
-      polygons.push(polyPoints);
-    } else {
-      console.warn("Points count < 3!");
-    }
-  }
-  for (li = 0; li < geom.loops.length; ++li) {
-    loop = geom.loops[li];
-    polyPoints = loop.slice(0);
-    for (var si = 0; si < polyPoints.length; si++) {
-      var conn = polyPoints[si];
-      //reuse a point and ignore b point since it's a guaranteed loop
-      conn.a.sketchConnectionObject = conn.sketchObject;
-      polyPoints[si] = conn.a;
-    }
-    // we assume that connection object is the same al other the loop. That's why reverse is safe.
-    if (!isCCW(polyPoints)) polyPoints.reverse();
-    if (polyPoints.length >= 3) {
-      polygons.push(polyPoints);
-    }
-  }
-  return polygons;
-}
 
 export function someBasis2(normal) {
   var x = normal.cross(normal.randomNonParallelVector());

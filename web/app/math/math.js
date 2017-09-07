@@ -70,6 +70,10 @@ export function strictEqual(a, b) {
   return a.x == b.x && a.y == b.y && a.z == b.z;
 }
 
+export function strictEqual2D(a, b) {
+  return a.x == b.x && a.y == b.y;
+}
+
 export function _vec(size) {
   var out = [];
   out.length = size;
@@ -188,5 +192,29 @@ export function area(contour) {
 export function isCCW(path2D) {
   return area(path2D) >= 0;
 }
+
+export function findLowestLeftPoint(poly) {
+  let heroIdx = 0;
+  for (let i = 1; i< poly.length; ++i) {
+    const point = poly[i];
+    let hero = poly[heroIdx];
+    if (point.y < hero.y) {
+      heroIdx = i;
+    } else if (hero.y == point.y) {
+      if (point.x < hero.x) {
+        heroIdx = i;
+      }
+    }
+  }
+  return heroIdx;
+}
+
+export function makeAngle0_360(angle) {
+  angle %= 2 * Math.PI;
+  if (angle < 0) {
+    angle = 2 * Math.PI + angle;
+  }
+  return angle;
+} 
 
 export const sq = (a) => a * a;

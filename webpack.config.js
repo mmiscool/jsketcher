@@ -4,14 +4,17 @@ const webpack = require('webpack');
 module.exports = {
   devtool: 'source-map',
   entry: {
-    index: ['./web/app/index'],
-    sketcher: ['./web/app/sketcher']
+    index: ['babel-polyfill', './web/app/index'],
+    sketcher: ['babel-polyfill', './web/app/sketcher']
   },
   output: {
     path: path.join(__dirname, 'dist/static'),
     filename: '[name].bundle.js',
     chunkFilename: '[id].bundle.js',
     publicPath: '/static/'
+  },
+  externals: {
+    'verb-nurbs': 'verb'
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
@@ -32,6 +35,10 @@ module.exports = {
     {
       test: /\.html$/,
       loader: 'handlebars?helperDirs[]=' + __dirname + '/web/app/ui/helpers'
+    },
+    {
+      test: /\.json$/,
+      loader: 'json'      
     }]
   }
 };
