@@ -5,7 +5,7 @@ export const EditFace = {
   label: 'sketch',
   icon96: 'img/3d/face-edit96.png',
   info: 'open sketcher for a face/plane',
-  listens: ['selection:face'],
+  listens: ['selection_face'],
   update: ActionHelpers.checkForSelectedFaces(1),
   invoke: (app) => app.editFace()
 };
@@ -36,6 +36,16 @@ export const DeselectAll = {
   label: 'deselect all',
   info: 'deselect everything',
   invoke: (app) => app.viewer.selectionMgr.deselectAll()
+};
+
+export const ToggleCameraMode = {
+  cssIcons: ['video-camera'],
+  label: 'toggle camera',
+  info: 'switch camera mode between perspective and orthographic',
+  invoke: (app) => {
+    app.context.services.viewer.toggleCamera();
+    app.context.services.viewer.render();
+  }
 };
 
 export const Info = {

@@ -1,5 +1,4 @@
 import '../../../modules/scene/utils/vectorThreeEnhancement'
-import '../utils/three-loader'
 import Bus from 'bus'
 import {Viewer} from './scene/viewer'
 import {UI} from './ui/ctrl'
@@ -41,9 +40,14 @@ function App() {
   this.state = this.createState();
   this.context = this.createPluginContext();
   this.initPlugins();
-  this.createViewer();
-  this.viewer = this.context.services.viewer;
-  this.viewer.workGroup = this.context.services.cadScene.workGroup;
+  
+  //old API workaround
+  this.viewer = {
+    render: () => this.context.services.viewer.render(),
+    workGroup: this.context.services.cadScene.workGroup
+  };
+    
+  // this.viewer.workGroup = this.context.services.cadScene.workGroup;
   this.actionManager.registerActions(AllActions);
   this.tabSwitcher = new TabSwitcher($('#tab-switcher'), $('#view-3d'));
   this.controlBar = new ControlBar(this, $('#control-bar'));
@@ -100,12 +104,8 @@ App.prototype.initPlugins = function() {
   }  
 };
 
-App.prototype.createViewer = function() {
-  this.context.bus.dispatch('dom:viewerContainer', document.getElementById('viewer-container'));
-};
-
 App.prototype.getFaceSelection = function() {
-  let selection = this.context.bus.state['selection:face'];
+  let selection = this.context.bus.state['selection_face'];
   return selection;    
 };
 

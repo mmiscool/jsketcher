@@ -54,7 +54,7 @@ function UI(app) {
     app.viewer.render();
   });
 
-  app.bus.subscribe('selection:solid', function([solid]) {
+  app.bus.subscribe('selection_solid', function([solid]) {
     if (solid) {
       ui.registerWizard(new TransformWizard(app.viewer, solid));
     }
@@ -123,6 +123,7 @@ UI.prototype.fillControlBar = function() {
   this.app.controlBar.add('RefreshSketches', RIGHT, {'label': null});
   this.app.controlBar.add('ShowSketches', RIGHT, {'label': 'sketches'});
   this.app.controlBar.add('DeselectAll', RIGHT, {'label': null});
+  this.app.controlBar.add('ToggleCameraMode', RIGHT, {'label': null});
   this.app.controlBar.add('menu.file', LEFT);
   this.app.controlBar.add('menu.craft', LEFT);
   this.app.controlBar.add('menu.boolean', LEFT);
@@ -163,7 +164,7 @@ UI.prototype.createWizardForOperation = function(op) {
   var initParams = op.params;
   var face = op.face !== undefined ? this.app.findFace(op.face) : null;
   if (face != null) {
-    this.app.context.bus.dispatch('selection:face', [face]);
+    this.app.context.bus.dispatch('selection_face', [face]);
   }
   return this.createWizard(op.type, true, initParams, face);
 };
