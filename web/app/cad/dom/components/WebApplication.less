@@ -1,15 +1,21 @@
+@import "~ui/styles/theme";
+
 .root {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.activeContent {
+.content {
   display: flex;
   flex-direction: column;
   flex: 1;
-  //position: relative;
+  & > * {
+    flex: 1;   
+  }
+  position: relative;
 }
 
 .contentSwitcher {
+  border-top: 1px solid @border-color;
 }

@@ -6,7 +6,7 @@ import TabSwitcher from './ui/tab-switcher'
 import ControlBar from './ui/control-bar'
 import {InputManager} from './ui/input-manager'
 import {ActionManager} from './actions/actions'
-import * as AllActions from './actions/all-actions'
+import * as AllActions from './actions/allActions'
 import Vector from 'math/vector';
 import {Matrix3, AXIS, ORIGIN, IDENTITY_BASIS} from '../math/l3space'
 import {Craft} from './craft/craft'
@@ -48,7 +48,7 @@ function App() {
     
   // this.viewer.workGroup = this.context.services.cadScene.workGroup;
   this.actionManager.registerActions(AllActions);
-  this.tabSwitcher = new TabSwitcher($('#tab-switcher'), $('#view-3d'));
+  // this.tabSwitcher = new TabSwitcher($('#tab-switcher'), $('#view-3d'));
   this.controlBar = new ControlBar(this, $('#control-bar'));
   this.TPI = TPI;
 
@@ -93,7 +93,7 @@ function App() {
 App.prototype.createPluginContext = function() {
   return {
     bus: this.bus,
-      services: {}
+    services: {}
   };
 };
 
@@ -101,6 +101,14 @@ App.prototype.initPlugins = function() {
   for (let plugin of Plugins) {
     plugin.activate(this.context);
   }  
+};
+
+//temporary workaround before extracted to plugin
+App.prototype.activateSketcherPlugin = function(context) {
+  context.services.sketcher = {
+    sketchFace: (sceneFace) => this.sketchFace(sceneFace),
+    editFace: () => this.editFace()
+  }
 };
 
 App.prototype.getFaceSelection = function() {

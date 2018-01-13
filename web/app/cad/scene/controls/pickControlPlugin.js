@@ -9,13 +9,9 @@ export const PICK_KIND = {
 
 
 export function activate(context) {
-  let {bus} = context;
+  initStateAndServices(context);
   let domElement = context.services.viewer.sceneSetup.domElement();
-  bus.enableState('selection_solid', []);
-  bus.enableState('selection_face', []);
-  bus.enableState('selection_edge', []);
-  bus.enableState('selection_sketchObject', []);
-
+  
   domElement.addEventListener('mousedown', mousedown, false);
   domElement.addEventListener('mouseup', mouseup, false);
 
@@ -113,6 +109,19 @@ export function activate(context) {
   }
 }
 
+function initStateAndServices({bus, services}) {
+  bus.enableState('selection_solid', []);
+  bus.enableState('selection_face', []);
+  bus.enableState('selection_edge', []);
+  bus.enableState('selection_sketchObject', []);
+
+  services.selection = {
+    solid: () => bus.state.selection_solid,
+    face: () => bus.state.selection_face,
+    edge: () => bus.state.selection_edge,
+    sketchObject: () => bus.state.selection_sketchObject
+  };
+}
 
 
 

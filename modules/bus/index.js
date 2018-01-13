@@ -5,19 +5,16 @@ export default class Bus {
     this.state = {};
     this.keepStateFor = new Set();
     this.lock = new Set();
+    this.stateConnections = new Map();
   }
   
-  subscribe(key, callback) {
-    let listenerList = this.listeners[key];
+  subscribe(token, callback) {
+    let listenerList = this.listeners[token];
     if (listenerList === undefined) {
       listenerList = [];
-      this.listeners[key] = listenerList;
+      this.listeners[token] = listenerList;
     }
     listenerList.push(callback);
-    
-    if (this.keepStateFor.has(key)) {
-      callback(this.state[key]);
-    }
     return callback;
   };
 
@@ -30,7 +27,30 @@ export default class Bus {
       }
     }
   };
-  
+
+  connectToState(tokens, callback) {
+    if (!Array.isArray(tokens)) {
+      tokens = [tokens];
+    }
+
+    let connection = () => {
+      callback(tokens.map( token => this.state[token] ));
+    };
+    tokens.forEach(token => {
+      if (!this.keepStateFor.has(token)) {
+        throw "unable to connect to stateless token. state for a token should be initialized before connecting";
+      }
+      this.subscribe(token, connection);
+    });
+    this.stateConnections.set(connection, tokens);
+    return connection;
+  }
+
+  disconnectFromState(connection) {
+    this.stateConnections.get(connection).forEach(token => this.unSubscribe(token, connection));
+    this.stateConnections.delete(connection);
+  }
+
   dispatch(key, data) {
     if (this.lock.has(key)) {
       console.warn('recursive dispatch');
@@ -57,16 +77,14 @@ export default class Bus {
     }
   };
 
-  enableState(forEvent, initValue) {
-    this.keepStateFor.add(forEvent);
-    this.state[forEvent] = initValue;
+  enableState(forToken, initValue) {
+    this.keepStateFor.add(forToken);
+    this.state[forToken] = initValue;
   }
 
-  disableState(forEvent) {
-    this.keepStateFor.delete(forEvent);
-  }
 }
 
-
-
+export function createToken(...fqn) {
+  return fqn.join('.');
+}
 
