@@ -1,8 +1,10 @@
 export default [
   {
     id: 'SetHistoryPointer',
-    label: 'set history',
-    info: 'set history pointer to this modification item',
+    appearance: {
+      label: 'set history',
+      info: 'set history pointer to this modification item',
+    },
     invoke: (app) => {
       const mIndex = parseInt(modificationIndex(app));
       app.craft.historyPointer = mIndex;
@@ -10,8 +12,10 @@ export default [
   },
   {
     id: 'OpenHistoryWizard',
-    label: 'edit operation',
-    info: 'open wizard to change parameters of this operation',
+    appearance: {
+      label: 'edit operation',
+      info: 'open wizard to change parameters of this operation',
+    },
     invoke: (app) => {
       const mIndex = parseInt(modificationIndex(app));
       if (mIndex != app.craft.historyPointer) {
@@ -24,9 +28,11 @@ export default [
   },
   {
     id: 'EditOperationSketch',
-    cssIcons: ['image'],
-    label: 'sketch',
-    info: 'edit the sketch assigned to this operation',
+    appearance: {
+      cssIcons: ['image'],
+      label: 'sketch',
+      info: 'edit the sketch assigned to this operation',
+    },
     invoke: (app) => {
 
       const mIndex = parseInt(modificationIndex(app));
@@ -43,8 +49,10 @@ export default [
   },
   {
     id: 'RemoveModification',
-    label: 'remove modification',
-    info: 'remove this modification',
+    appearance: {
+      label: 'remove modification',
+      info: 'remove this modification',
+    },
     invoke: (app) => {
       if (!confirm("This modification and all following modifications will be removed. Continue?")) {
         return;

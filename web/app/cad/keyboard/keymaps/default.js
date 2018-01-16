@@ -1,4 +1,4 @@
-export const keymap = {
+export default {
   'CUT': 'C',
   'EXTRUDE': 'E',
   'ZoomIn': '+',

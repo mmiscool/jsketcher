@@ -1,16 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export default function connect(tokens, WrappedComponent, staticProps, mapper) {
+export default function connect(tokens, WrappedComponent, staticProps, mapper, dispatchMapper) {
 
   if (!Array.isArray(tokens)) {
     tokens = [tokens];
   }
 
-  mapper = mapper || function (state) {
-    let props = {};
-    state.forEach(stateItem => Object.assign(props, stateItem));
-    return props;
+  mapper = createMapper(mapper);
+
+  dispatchMapper = dispatchMapper || function(dispatch) {
+    return dispatch;
   };
 
   return class StateConnector extends React.Component {
@@ -19,6 +19,7 @@ export default function connect(tokens, WrappedComponent, staticProps, mapper) {
       super();
       this.mounted = false;
       this.stateProps = {};
+      this.dispatchProps = dispatchMapper(this.dispatch);
     }
 
     componentWillMount() {
@@ -47,7 +48,7 @@ export default function connect(tokens, WrappedComponent, staticProps, mapper) {
     };
 
     render() {
-      return <WrappedComponent {...this.stateProps} {...staticProps} dispatch={this.dispatch} />
+      return <WrappedComponent {...this.stateProps} {...this.dispatchProps} {...staticProps} />
     }
 
     static contextTypes = {
@@ -55,5 +56,27 @@ export default function connect(tokens, WrappedComponent, staticProps, mapper) {
     };
   }
 }
+
+function createMapper(mapper) {
+  if (!mapper) {
+    return function (state) {
+      let props = {};
+      state.forEach(stateItem => Object.assign(props, stateItem));
+      return props;
+    };
+  } else if (Array.isArray(mapper)) {
+    return function (state) {
+      let props = {};
+      for (let i = 0; i < state.length; i++) {
+        let stateItem = state[i];
+        let mapperItem = mapper[i];
+        Object.assign(props, mapperItem ? mapperItem(stateItem) : stateItem)
+      }
+      return props;
+    };
+  }
+  return mapper;
+}
+
 
 

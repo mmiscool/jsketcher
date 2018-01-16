@@ -4,42 +4,53 @@ import connect from 'ui/connect';
 import Fa from 'ui/components/Fa';
 import {TOKENS as UI_TOKENS} from '../uiEntryPointsPlugin';
 import {TOKENS as ACTION_TOKENS} from '../../actions/actionSystemPlugin';
-import actionToProps from "../../actions/actionToProps";
+import {toIdAndOverrides} from "../../actions/actionRef";
 
 
-function ConfigurableControlBar({leftGroupActions, rightGroupActions}) {
-
-  return <ControlBar>
-    {[
-      <Fragment>{toButtons(leftGroupActions)}</Fragment>,
-      <Fragment>{toButtons(rightGroupActions)}</Fragment>
-    ]}
-  </ControlBar>
+export default function PlugableControlBar() {
+  return <ControlBar left={<LeftGroup />} right={<RightGroup />}/>;
 }
 
-function toButtons(actions) {
-  return actions.map(({id, label, cssIcons, invoke}) => {
-    let Comp = connect(ACTION_TOKENS.actionState(id), ActionButton, {label, cssIcons, onClick: invoke});
-    return <Comp key={id} />;
+function ButtonGroup({actions}) {
+  return actions.map(actionRef => { 
+    let [id, overrides] = toIdAndOverrides(actionRef);
+    let actionRunToken = ACTION_TOKENS.actionRun(id);
+    let Comp = connect([ACTION_TOKENS.actionAppearance(id), ACTION_TOKENS.actionState(id)],
+      ActionButton, {actionId: id},
+      ([appearance, state]) => Object.assign({}, appearance, state, overrides),
+      dispatch => ({runAction: (data) => dispatch(actionRunToken, data)})
+    );
+    return <Comp key={id}/>;
   });
 }
 
-function ActionButton({label, cssIcons, onClick, enabled, visible}) {
-  if (!visible) {
-    return null;
-  }
-  return <ControlBarButton {...{onClick, disabled: !enabled}}>
-    {cssIcons && <Fa fa={cssIcons} fw/>} {label}
-  </ControlBarButton>
+function isMenuAction(actionId) {
+  return actionId.startsWith('menu.');
 }
 
-export default connect([UI_TOKENS.CONTROL_BAR_LEFT, UI_TOKENS.CONTROL_BAR_RIGHT, ACTION_TOKENS.ACTIONS],
-  ConfigurableControlBar, undefined, ([leftActions, rightActions, actions]) => {
-    const toAction = (ref) => actionToProps(ref, actions);
-    const toActions = (config) => config.map(toAction).filter(action => action !== null);
-    return {
-      leftGroupActions: toActions(leftActions),
-      rightGroupActions: toActions(rightActions)
-    };
+class ActionButton extends React.Component {
+  
+  render() {
+    let {label, cssIcons, runAction, enabled, visible, actionId} = this.props;
+    if (!visible) {
+      return null;
+    }
+    const onClick = e => runAction(isMenuAction(actionId) ? getMenuData(this.el) : undefined);
+    return <ControlBarButton {...{onClick, disabled: !enabled}} onElement={el => this.el = el}>
+      {cssIcons && <Fa fa={cssIcons} fw/>} {label}
+    </ControlBarButton>;
   }
-);
+}
+
+const LeftGroup = connect(UI_TOKENS.CONTROL_BAR_LEFT, ButtonGroup, undefined, ([actions]) => ({actions}));
+const RightGroup = connect(UI_TOKENS.CONTROL_BAR_RIGHT, ButtonGroup, undefined, ([actions]) => ({actions}));
+
+function getMenuData(el) {
+  //TODO: make more generic
+  return {
+    orientationUp: true,
+    flatBottom: true,
+    x: el.offsetParent.offsetParent.offsetLeft + el.offsetLeft,
+    y: el.offsetParent.offsetHeight - el.offsetTop
+  };
+}

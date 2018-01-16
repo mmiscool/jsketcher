@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import PlugableControlBar from './PlugableControlBar';
 
 import ls from './View3d.less';
@@ -9,11 +10,15 @@ import ImgIcon from 'ui/components/ImgIcon';
 import Fa from 'ui/components/Fa';
 import Abs from 'ui/components/Abs';
 import {PlugableToolbarLeft, PlugableToolbarLeftSecondary, PlugableToolbarRight} from "./PlugableToolbar";
+import MenuHolder from "../menu/MenuHolder";
+import {TOKENS as MENU_TOKENS} from '../menu/menuPlugin';
+
 
 export default class View3d extends React.PureComponent {
   
   render() {
-    return <div className={ls.root}>
+    return <div className={ls.root} onMouseDown={this.closeAllUpPopups}>
+      <MenuHolder />
       <div className={ls.sideBar}>
         <ObjectExplorer/>
         <OperationHistory/>
@@ -33,4 +38,26 @@ export default class View3d extends React.PureComponent {
       </div>
     </div>
   }
+
+  closeAllUpPopups = () => {
+    let openedMenus = this.context.bus.state[MENU_TOKENS.OPENED];
+    if (openedMenus && openedMenus.length !== 0) {
+      this.context.bus.dispatch(MENU_TOKENS.CLOSE_ALL);
+    }
+
+  };
+  
+  getChildContext() {
+    return {
+      closeAllUpPopups: this.closeAllUpPopups
+    }
+  }
+  
+  static contextTypes = {
+    bus: PropTypes.object
+  };
+
+  static childContextTypes = {
+    closeAllUpPopups: PropTypes.func
+  };
 }

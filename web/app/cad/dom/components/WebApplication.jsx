@@ -20,14 +20,14 @@ import ls from './WebApplication.less';
 import TabSwitcher, {Tab} from 'ui/components/TabSwticher';
 import Card from 'ui/components/Card';
 
-const DEFAULT_VIEW = {id: 'view3d',  label: '3D View', component: <View3d />};
+const DEFAULT_VIEW = {id: 'view3d',  label: '3D View', Component: View3d};
 
 export default class WebApplication extends React.Component {
 
   constructor({bus}) {
     super();
     this.bus = bus;
-    this.views = [DEFAULT_VIEW, {id: 'XXX',  label: '3D View2', component: <View3d />}];
+    this.views = [DEFAULT_VIEW, {id: 'XXX',  label: '3D View2', Component: Fragment}];
     this.state = {
       activeView: DEFAULT_VIEW
     };
@@ -42,8 +42,8 @@ export default class WebApplication extends React.Component {
     return <div className={ls.root}>
       
       <div className={ls.content}>
-        {this.views.map(({id, component}) => <Card key={id} visible={id === activeView.id}>
-          {component}
+        {this.views.map(({id, Component}) => <Card key={id} visible={id === activeView.id}>
+          <Component />
         </Card>)}
       </div>
       
@@ -81,4 +81,8 @@ export default class WebApplication extends React.Component {
   static childContextTypes = {
     bus: PropTypes.object
   };
+}
+
+function render(Component) {
+  return <Component />;
 }

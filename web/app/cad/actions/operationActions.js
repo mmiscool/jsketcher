@@ -4,62 +4,86 @@ import * as ActionHelpers from './action-helpers'
 const OPERATION_ACTIONS = [
   {
     id: 'CUT',
-    info: 'makes a cut based on 2D sketch',
+    appearance: {
+      info: 'makes a cut based on 2D sketch',
+    },
     ...requiresFaceSelection(1)
   },
   {
     id: 'EXTRUDE',
-    info: 'extrudes 2D sketch',
+    appearance: {
+      info: 'extrudes 2D sketch',
+    },
   },
   {
     id: 'REVOLVE',
-    info: 'revolve 2D sketch',
+    appearance: {
+      info: 'revolve 2D sketch',
+    },
     ...requiresFaceSelection(1)
   },
   {
     id: 'SHELL',
-    info: 'makes shell using borders',
+    appearance: {
+      info: 'makes shell using borders',
+    },
     ...requiresFaceSelection(1)
   },
   {
     id: 'BOX',
-    info: 'creates new object box'
+    appearance: {
+      info: 'creates new object box'
+    },
   },
   {
     id: 'PLANE',
-    info: 'creates new object plane'
+    appearance: {
+      info: 'creates new object plane'
+    },
   },
   {
     id: 'SPHERE',
-    info: 'creates new object sphere'
+    appearance: {
+      info: 'creates new object sphere'
+    },
   },
   {
     id: 'INTERSECTION',
-    info: 'intersection operation on two solids',
+    appearance: {
+      info: 'intersection operation on two solids',
+    },
     ...requiresSolidSelection(2)
   },
   {
     id: 'DIFFERENCE',
-    info: 'difference operation on two solids',
+    appearance: {
+      info: 'difference operation on two solids',
+    },
     ...requiresSolidSelection(2)
   },
   {
     id: 'UNION',
-    info: 'union operation on two solids',
+    appearance: {
+      info: 'union operation on two solids',
+    },
     ...requiresSolidSelection(2)
   },
   {
     id: 'IMPORT_STL',
-    info: 'import stl from external location'
+    appearance: {
+      info: 'import stl from external location'
+    }
   }
 ];
 
 function mergeInfo(action) {
   const op = Operations[action.id];
-  action.label = op.label;
-  action.icon32 = op.icon + '32.png';
-  action.icon96 = op.icon + '96.png';
-  action.invoke = (app) => app.ui.initOperation(action.id);
+  action.invoke = app => app.ui.initOperation(action.id);
+  Object.assign(action.appearance, {
+    label: op.label,
+    icon32: op.icon + '32.png',
+    icon96: op.icon + '96.png',
+  });
 }
 
 OPERATION_ACTIONS.forEach(action => mergeInfo(action));

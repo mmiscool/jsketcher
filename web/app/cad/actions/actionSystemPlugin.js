@@ -4,47 +4,49 @@ export function activate(context) {
   
   let {bus} = context;
   
-  bus.enableState(TOKENS.ACTIONS, {});
-  
   function run(id, data) {
-    bus.state.actions[id].invoke(context, data);
+    bus.dispatch(TOKENS.actionRun(id), data);
   }
 
   function register(action) {
-    bus.state.actions[action.id] = action;
+    bus.enableState(TOKENS.actionAppearance(action.id), action.appearance);
 
     let stateToken = TOKENS.actionState(action.id);
-    bus.enableState(stateToken, {
+    let initialState = {
       hint: '',
       enabled: true,
       visible: true
-    });
+    };
+    if (action.update) {
+      action.update(initialState, context);
+    }
+    bus.enableState(stateToken, initialState);
     
     if (action.update && action.listens) {
 
       const stateUpdater = () => {
-        let actionState = bus.state[stateToken];
-        actionState.hint = '';
-        actionState.enabled = true;
-        actionState.visible = true;
-        action.update(actionState, context);
-        bus.dispatch(stateToken, actionState);
+        bus.updateState(stateToken, (actionState) => {
+          actionState.hint = '';
+          actionState.enabled = true;
+          actionState.visible = true;
+          action.update(actionState, context);
+          return actionState;
+        });
       };
 
       for (let event of action.listens) {
-        bus.subscribe(event, stateUpdater)();
+        bus.subscribe(event, stateUpdater);
       }
     }
+    bus.subscribe(TOKENS.actionRun(action.id), (data) => action.invoke(context, data));
   }
   
   function registerAction(action) {
     register(action);
-    bus.dispatch(TOKENS.ACTIONS, bus.state.actions);
   }
 
   function registerActions(actions) {
     actions.forEach(action => register(action));
-    bus.dispatch(TOKENS.ACTIONS, bus.state.actions);
   }
 
   context.services.action = {run, registerAction, registerActions}
@@ -52,8 +54,10 @@ export function activate(context) {
 
 export const TOKENS = {
   ACTION_STATE_NS: 'action.state',
-  ACTIONS: createToken('actions'),
-  actionState: (actionId) => {
-    createToken(TOKENS.ACTION_STATE_NS, actionId)
-  }
+  ACTION_APPEARANCE_NS: 'action.appearance',
+  ACTION_RUN_NS: 'action.run',
+  
+  actionState: (actionId) => createToken(TOKENS.ACTION_STATE_NS, actionId),
+  actionAppearance: (actionId) => createToken(TOKENS.ACTION_APPEARANCE_NS, actionId),
+  actionRun: (actionId) => createToken(TOKENS.ACTION_RUN_NS, actionId),
 };

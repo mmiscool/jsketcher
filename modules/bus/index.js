@@ -28,17 +28,21 @@ export default class Bus {
     }
   };
 
+  tokensToStates(tokens) {
+    return tokens.map( token => this.state[token] );
+  }
+  
   connectToState(tokens, callback) {
     if (!Array.isArray(tokens)) {
       tokens = [tokens];
     }
 
     let connection = () => {
-      callback(tokens.map( token => this.state[token] ));
+      callback(this.tokensToStates(tokens));
     };
     tokens.forEach(token => {
       if (!this.keepStateFor.has(token)) {
-        throw "unable to connect to stateless token. state for a token should be initialized before connecting";
+        throw `unable to connect to stateless token ${token}. state for a token should be initialized before connecting`;
       }
       this.subscribe(token, connection);
     });
@@ -49,6 +53,21 @@ export default class Bus {
   disconnectFromState(connection) {
     this.stateConnections.get(connection).forEach(token => this.unSubscribe(token, connection));
     this.stateConnections.delete(connection);
+  }
+
+  updateStates(tokens, updater) {
+    let updated = updater(this.tokensToStates(tokens));
+    for (let i = 0; i < tokens.length; ++i) {
+      this.dispatch(tokens[i], updated[i]);
+    }
+  }
+
+  updateState(token, updater) {
+    this.dispatch(token, updater(this.state[token]));
+  }
+
+  setState(token, partialState) {
+    this.dispatch(token, Object.assign({}, this.state[token], partialState));
   }
 
   dispatch(key, data) {

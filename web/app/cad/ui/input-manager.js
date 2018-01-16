@@ -1,5 +1,5 @@
 import {jwerty} from 'jwerty'
-import {keymap} from './keymaps/default'
+import {keymap} from '../keyboard/keymaps/default'
 import {Bind} from './bind'
 import {MessageSink} from './message-sink'
 import {LoadTemplate, DefaultMouseEvent, EventData, fit} from './utils'

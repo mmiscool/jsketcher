@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import Fa from 'ui/components/Fa';
 import cx from 'classnames';
 
@@ -14,6 +14,8 @@ export default function TabSwitcher({children, className}) {
 export function Tab({id, label, active, closable, onSwitch}) {
   return <span className={cx(ls.tab, active && ls.active)} onClick={() => onSwitch(id)}>
     {label} 
-    {closable && [' ',<Fa fw icon='expand' className={ls.expand} />, <Fa fw icon='close' className={ls.close} /> ] }
+    {closable && <Fragment>
+      <Fa fw icon='expand' className={ls.expand} /> <Fa fw icon='close' className={ls.close} />
+    </Fragment>}
   </span>;
 }

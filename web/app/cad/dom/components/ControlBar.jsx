@@ -3,21 +3,21 @@ import React from 'react';
 import ls from './ControlBar.less';
 import cx from 'classnames';
 
-export default function ControlBar({children}) {
+export default function ControlBar({left, right}) {
 
   return <div className={ls.root}>
     <div className={ls.left}>
-      {children[0]}
+      {right}
     </div>
     <div className={ls.right}>
-      {children[1]}
+      {left}
     </div>
   </div>
 }
 
-export function ControlBarButton({onClick, disabled, children}) {
+export function ControlBarButton({onClick, onElement, disabled, children}) {
   return <span className={cx(ls.button, 'disable-selection', {disabled})} 
-               onClick={disabled || onClick}>
+               onClick={disabled || onClick} ref={onElement}>
     {children}
   </span>
 }
