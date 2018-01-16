@@ -17,7 +17,6 @@ import * as math from '../math/math'
 import {IO} from '../sketcher/io'
 import {AddDebugSupport} from './debug'
 import {init as initSample} from './sample'
-import '../../css/app3d.less'
 
 import BrepBuilder from '../brep/brep-builder'
 import * as BREPPrimitives from '../brep/brep-primitives'
