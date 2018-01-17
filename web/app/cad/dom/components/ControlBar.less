@@ -1,0 +1,48 @@
+@import "~ui/styles/theme";
+
+.root {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  z-index: 150;
+  justify-content: space-between;
+  background-color: @work-area-control-bar-bg-color;
+  color: @work-area-control-bar-font-color;
+}
+
+.button {
+  cursor: pointer;
+  padding: 0.4em 0.5em;
+
+  &:hover {
+    background-color: @work-area-control-bar-bg-color-active;
+  }
+  line-height: 1;
+}
+
+.left, .right {
+  display: flex;
+  align-items: baseline;
+}
+
+.right {
+  flex-direction: row-reverse;
+}
+
+@border: 1px solid @border-color;
+.left .button {
+  border-right: @border;
+}
+.right .button {
+  border-left: @border;
+}
+
+
+.button.disabled {
+  color: @font-color-suppressed;
+  &:hover {
+    background-color: @work-area-control-bar-bg-color;
+  }
+}
